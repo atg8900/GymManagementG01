@@ -24,7 +24,7 @@ namespace GymManagementDAL.Data.Configurations
                   .HasColumnType("varchar(11)");
 
             builder.ToTable(Tb => Tb.HasCheckConstraint("PhoneValidEgpConstraint",
-                               "Phone like '01[0125]%' and Phone not like %[^0-9]%"));
+                               "Phone like '01[0125]%' and Phone not like '%[^0-9]%'"));
             builder.HasIndex(X => X.Phone).IsUnique();
 
             builder.OwnsOne(X => X.Address, AddressBuilder =>
