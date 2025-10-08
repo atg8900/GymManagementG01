@@ -15,6 +15,10 @@ namespace GymManagementDAL.Data.Configurations
         {
             builder.Property(X => X.CategoryName)
                    .HasColumnType("varchar(20)");
+
+            builder.HasMany(C => C.Sessions)
+                    .WithOne(S => S.Category)
+                    .HasForeignKey(S => S.CategoryId);
         }
     }
 }
