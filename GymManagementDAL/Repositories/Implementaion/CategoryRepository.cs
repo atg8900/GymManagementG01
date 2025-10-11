@@ -11,7 +11,15 @@ namespace GymManagementDAL.Repositories.Implementaion
 {
     class CategoryRepository : ICategoryRepository
     {
-        private readonly GymDbContext _dbContext = new GymDbContext();
+        private readonly GymDbContext _dbContext;
+
+        // private readonly GymDbContext _dbContext = new GymDbContext();
+
+        // Ask CLR to inject object from GymDb Context in the run time
+        public CategoryRepository(GymDbContext dbContext)
+        {
+            this._dbContext = dbContext;
+        }
         public int Add(Category category)
         {
             _dbContext.Categories.Add(category);

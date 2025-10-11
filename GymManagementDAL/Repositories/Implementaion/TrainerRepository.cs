@@ -11,7 +11,15 @@ namespace GymManagementDAL.Repositories.Implementaion
 {
     class TrainerRepository : ITrainerRepository
     {
-        private readonly GymDbContext _dbContext = new GymDbContext();
+        private readonly GymDbContext _dbContext;
+
+        // private readonly GymDbContext _dbContext = new GymDbContext();
+
+        // Ask CLR to inject object from GymDb Context in the run time
+        public TrainerRepository(GymDbContext dbContext)
+        {
+            this._dbContext = dbContext;
+        }
         public int Add(Trainer trainer)
         {
             _dbContext.Trainers.Add(trainer);

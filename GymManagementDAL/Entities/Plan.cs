@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GymManagementDAL.Entities
 {
-    class Plan:BaseEntity
+    public class Plan:BaseEntity
     {
         public string Name { get; set; }
         public string Description { get; set; }

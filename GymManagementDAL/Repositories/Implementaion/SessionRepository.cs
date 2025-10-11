@@ -12,7 +12,15 @@ namespace GymManagementDAL.Repositories.Implementaion
 {
     class SessionRepository: ISessionRepository
     {
-        private readonly GymDbContext _dbContext = new GymDbContext();
+        private readonly GymDbContext _dbContext;
+
+        // private readonly GymDbContext _dbContext = new GymDbContext();
+
+        // Ask CLR to inject object from GymDb Context in the run time
+        public SessionRepository(GymDbContext dbContext)
+        {
+            this._dbContext = dbContext;
+        }
 
         public int Add(Session session)
         {

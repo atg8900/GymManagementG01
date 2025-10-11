@@ -12,7 +12,15 @@ namespace GymManagementDAL.Repositories.Implementaion
     class PlanRepository: IPlanRepository
     {
 
-        private readonly GymDbContext _dbContext = new GymDbContext();
+        private readonly GymDbContext _dbContext;
+
+        // private readonly GymDbContext _dbContext = new GymDbContext();
+
+        // Ask CLR to inject object from GymDb Context in the run time
+        public PlanRepository(GymDbContext dbContext)
+        {
+            this._dbContext = dbContext;
+        }
 
         public IEnumerable<Plan> GetAllPlans()
         => _dbContext.Plans.ToList();
