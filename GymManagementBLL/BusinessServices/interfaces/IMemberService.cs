@@ -10,5 +10,6 @@ namespace GymManagementBLL.BusinessServices.interfaces
     interface IMemberService
     {
         IEnumerable<MemberViewModel> GetAllMembers();
+        bool CreateMember(CreateMemberViewModel createMember);
     }
 }
