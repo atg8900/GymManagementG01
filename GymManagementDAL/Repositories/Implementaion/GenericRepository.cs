@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GymManagementDAL.Repositories.Implementaion
 {
-    class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity:BaseEntity , new()
+    public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity:BaseEntity , new()
     {
 
         private readonly GymDbContext _dbContext;
