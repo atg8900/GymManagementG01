@@ -18,16 +18,22 @@ namespace GymManagementBLL.BusinessServices.implementaion
         private readonly IGenericRepository<Membership> _membershipRepository;
         private readonly IPlanRepository _planRepository;
         private readonly IGenericRepository<HealthRecord> _healthRecordRepository;
+        private readonly IGenericRepository<MemberSession> _memberSessionRepository;
+        private readonly IGenericRepository<Session> _sessionRepository;
 
         public MemberService(IGenericRepository<Member> memberRepository ,
             IGenericRepository<Membership> membershipRepository ,
              IPlanRepository planRepository,
-              IGenericRepository<HealthRecord> healthRecordRepository)
+              IGenericRepository<HealthRecord> healthRecordRepository,
+              IGenericRepository<MemberSession> memberSessionRepository,
+              IGenericRepository<Session> sessionRepository)
         {
             _memberRepository = memberRepository;
             _membershipRepository = membershipRepository;
             _planRepository = planRepository;
             _healthRecordRepository = healthRecordRepository;
+            _memberSessionRepository = memberSessionRepository;
+            this._sessionRepository = sessionRepository;
         }
 
         public bool CreateMember(CreateMemberViewModel createMember)
@@ -209,6 +215,44 @@ namespace GymManagementBLL.BusinessServices.implementaion
                 return false;
             }
         }
+
+
+        bool IMemberService.RemoveMember(int memberId)
+        {
+            try
+            {
+                var member = _memberRepository.GetById(memberId);
+                if (member is null) return false;
+
+                var memberSessionIds = _memberSessionRepository
+                                    .GetAll(M => M.MemberId == memberId)
+                                    .Select(M => M.SessionId);
+
+                var hasFutureSession = _sessionRepository
+                                      .GetAll(S => memberSessionIds.Contains(S.Id) && S.StartDate > DateTime.Now)
+                                      .Any();
+
+                if (hasFutureSession) return false;
+
+                var memberShips = _membershipRepository.GetAll(M => M.MemberId == memberId);
+
+                if (memberShips.Any())
+                {
+                    foreach (var memberShip in memberShips)
+                    {
+                        _membershipRepository.Delete(memberShip);
+                    }
+                }
+
+                return _memberRepository.Delete(member) > 0;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
+        }
+
 
 
         #region Helper Methods
