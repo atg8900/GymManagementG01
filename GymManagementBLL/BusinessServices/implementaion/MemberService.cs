@@ -32,11 +32,9 @@ namespace GymManagementBLL.BusinessServices.implementaion
 
         public bool CreateMember(CreateMemberViewModel createMember)
         {
-            var EmailExit = _memberRepository.GetAll(E=>E.Email == createMember.Email).Any();
-            var PhoneExit = _memberRepository.GetAll(P=>P.Phone == createMember.Phone).Any();
 
 
-            if (EmailExit || PhoneExit)
+            if (IsEmailExit(createMember.Email) || IsPhoneExit(createMember.Phone))
                 return false;
 
             var member = new Member()
@@ -142,6 +140,7 @@ namespace GymManagementBLL.BusinessServices.implementaion
             
         }
 
+       
         HealthRecordViewModel? IMemberService.GetMemberHealthDetails(int memberId)
         {
             var memberHealtRecord = _healthRecordRepository.GetById(memberId);
@@ -156,5 +155,73 @@ namespace GymManagementBLL.BusinessServices.implementaion
             };
 
         }
+
+        MemberToUpdateViewModel? IMemberService.GetMemberDetailsToUpdate(int memberId)
+        {
+            var member = _memberRepository.GetById(memberId);
+            if (member is null) return null;
+           return new MemberToUpdateViewModel()
+            {
+              Name = member.Name,
+              Email = member.Email,
+              Phone =member.Phone,
+              Photo = member.Photo,
+              BuildingNumber = member.Address.BuildingNumber,
+              City = member.Address.City,
+              Street = member.Address.Street
+           };
+            
+        }
+
+        bool IMemberService.UpdaeMember(int memberId, MemberToUpdateViewModel memberToUpdate)
+        {
+
+            try
+            {
+
+               
+
+
+                if (IsEmailExit(memberToUpdate.Email) || IsPhoneExit(memberToUpdate.Phone))
+                    return false;
+
+                var member = _memberRepository.GetById(memberId);
+                if (member is null) return false;
+
+
+
+                member.Email = memberToUpdate.Email;
+                member.Phone = memberToUpdate.Phone;
+                member.Address.BuildingNumber = memberToUpdate.BuildingNumber;
+                member.Address.City = memberToUpdate.City;
+                member.Address.Street = memberToUpdate.Street;
+                member.UpdatedAt = DateTime.Now;
+
+
+
+
+                return _memberRepository.Update(member) > 0;
+
+            }
+            catch (Exception e)
+            {
+
+                return false;
+            }
+        }
+
+
+        #region Helper Methods
+
+        private bool IsEmailExit(string email)
+        {
+            return _memberRepository.GetAll(E => E.Email == email).Any();
+        }
+        private bool IsPhoneExit(string phone)
+        {
+            return _memberRepository.GetAll(E => E.Phone == phone).Any();
+        }
+
+        #endregion
     }
 }
