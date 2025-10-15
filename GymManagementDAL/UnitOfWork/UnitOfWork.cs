@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GymManagementDAL.UnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork : IUnitOfWork 
     {
         private readonly GymDbContext _dbContext;
         private readonly Dictionary<Type, object> _repositories = new();
@@ -17,6 +17,9 @@ namespace GymManagementDAL.UnitOfWork
         {
             _dbContext = dbContext;
         }
+
+     
+
         IGenericRepository<TEntity> IUnitOfWork.GetRepository<TEntity>()
         {
             var entityType = typeof(TEntity);
