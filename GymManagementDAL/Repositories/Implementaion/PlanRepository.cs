@@ -28,10 +28,10 @@ namespace GymManagementDAL.Repositories.Implementaion
         public Plan? GetPlanById(int id)=>
        _dbContext.Plans.Find(id);
 
-        public int Update(Plan plan)
+        public void Update(Plan plan)
         {
             _dbContext.Plans.Update(plan);
-            return _dbContext.SaveChanges();
+          
         }
     }
 }
