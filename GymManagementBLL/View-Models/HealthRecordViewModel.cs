@@ -20,6 +20,6 @@ namespace GymManagementBLL.View_Models
         [Required(ErrorMessage = "Blood Type is Required")]
         [StringLength(3,  ErrorMessage = "Blood Type is max 3")]
         public string BloodType { get; set; } = null!;
-        public string Note { get; set; } 
+        public string ?Note { get; set; } 
     }
 }
