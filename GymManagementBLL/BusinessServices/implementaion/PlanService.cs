@@ -52,17 +52,68 @@ namespace GymManagementBLL.BusinessServices.implementaion
 
         public PlanToUpdateViewModel? GetPlanToUpdate(int PlanId)
         {
-            throw new NotImplementedException();
+            var planRepo = _unitOfWork.GetRepository<Plan>();
+            var plan = planRepo.GetById(PlanId);
+            if (plan is null || plan.IsActive == false || HasActiveMemberships(PlanId))
+                return null;
+
+            return new PlanToUpdateViewModel()
+            {
+                Name = plan.Name,
+                Description = plan.Description,
+                DurationDays = plan.DurationDays,
+                Price = plan.Price
+            };
+
         }
 
         public bool UpdatePlan(int PlanId, PlanToUpdateViewModel planToUpdate)
         {
-            throw new NotImplementedException();
+            var planRepo = _unitOfWork.GetRepository<Plan>();
+            var plan = planRepo.GetById(PlanId);
+            if (plan is null || planToUpdate is null)
+                return false;
+
+
+            (plan.Description, plan.DurationDays, plan.Price) =
+                (planToUpdate.Description, planToUpdate.DurationDays, planToUpdate.Price);
+            plan.UpdatedAt = DateTime.Now;
+            try
+            {
+                planRepo.Update(plan);
+                return _unitOfWork.SaveChanges() > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+
         }
 
         bool IPlanService.TogggleStatus(int PlanId)
         {
-            throw new NotImplementedException();
+            var planRepo = _unitOfWork.GetRepository<Plan>();
+            var plan = planRepo.GetById(PlanId);
+            if (plan is null || HasActiveMemberships(PlanId))
+                return false;
+            plan.IsActive = !plan.IsActive;
+            plan.UpdatedAt = DateTime.Now;
+            planRepo.Update(plan);
+            return _unitOfWork.SaveChanges() > 0;
         }
+
+        #region Helper Method
+
+        private bool HasActiveMemberships(int planId)
+        {
+            var activeMemberships = _unitOfWork.GetRepository<Membership>()
+                                               .GetAll(M =>M.PlanId == planId && M.Status == "Active");
+            return activeMemberships.Any();
+            
+        }
+
+
+        #endregion
     }
 }
