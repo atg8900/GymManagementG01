@@ -36,24 +36,24 @@ namespace GymManagementBLL.BusinessServices.implementaion
                 Phone = createMember.Phone,
                 Gender = createMember.Gender,
                 DateOfBirth = createMember.DateOfBirth,
-                Address = new Address() 
+                Address = new Address()
                 {
-                   BuildingNumber =createMember.BuildingNumber,
-                   City =createMember.City,
-                   Street =createMember.Street,
-                } ,
+                    BuildingNumber = createMember.BuildingNumber,
+                    City = createMember.City,
+                    Street = createMember.Street,
+                },
                 HealthRecord = new HealthRecord()
                 {
-                    Height= createMember.HealthRecord.Height,
-                    Weight= createMember.HealthRecord.Weight,
-                    BloodType= createMember.HealthRecord.BloodType,
-                    Note= createMember.HealthRecord.Note,
+                    Height = createMember.HealthRecord.Height,
+                    Weight = createMember.HealthRecord.Weight,
+                    BloodType = createMember.HealthRecord.BloodType,
+                    Note = createMember.HealthRecord.Note,
 
                 }
 
             };
 
-             _unitOfWork.GetRepository<Member>().Add(member);
+            _unitOfWork.GetRepository<Member>().Add(member);
 
             return _unitOfWork.SaveChanges() > 0;
         }
@@ -86,7 +86,7 @@ namespace GymManagementBLL.BusinessServices.implementaion
 
             #region Manual Mapping Second Way 
 
-            var membersViewModel = members.Select(M=> new MemberViewModel 
+            var membersViewModel = members.Select(M => new MemberViewModel
             {
                 Id = M.Id,
                 Name = M.Name,
@@ -100,41 +100,41 @@ namespace GymManagementBLL.BusinessServices.implementaion
             #endregion
         }
 
-     
-        MemberViewModel? IMemberService.GetMemberDetails(int memberId)
+
+        public MemberViewModel? GetMemberDetails(int memberId)
         {
             var member = _unitOfWork.GetRepository<Member>().GetById(memberId);
             if (member is null) return null;
-            
-                var MemberViewModel = new MemberViewModel()
-                {
-                    Name = member.Name,
-                    Email = member.Email,
-                    Phone = member.Phone,
-                    Gender = member.Gender.ToString(),
-                    DateOfBirth = member.DateOfBirth.ToShortDateString(),
-                    Address = $"{member.Address.BuildingNumber }-{member.Address.City}-{member.Address.Street}",
-                    Photo = member.Photo,
-                };
-                var memership = _unitOfWork.GetRepository<Membership>()
-                                .GetAll( M=> M.MemberId == member.Id && M.Status == "Active")
-                                .FirstOrDefault();
-                if (memership is null ) return null;
-            
-                MemberViewModel.MembershipStartDate = memership.CreatedAt.ToShortDateString();
-                MemberViewModel.MembershipEndDate = memership.EndDate.ToShortDateString();
-                var plan = _unitOfWork.GetRepository<Plan>().GetById(memership.PlanId);
-                if (plan is null) return null;
 
-                MemberViewModel.PlanName = plan.Name;
+            var MemberViewModel = new MemberViewModel()
+            {
+                Name = member.Name,
+                Email = member.Email,
+                Phone = member.Phone,
+                Gender = member.Gender.ToString(),
+                DateOfBirth = member.DateOfBirth.ToShortDateString(),
+                Address = $"{member.Address.BuildingNumber}-{member.Address.City}-{member.Address.Street}",
+                Photo = member.Photo,
+            };
+            var memership = _unitOfWork.GetRepository<Membership>()
+                            .GetAll(M => M.MemberId == member.Id && M.Status == "Active")
+                            .FirstOrDefault();
+            if (memership is null) return null;
 
-                return MemberViewModel;
-            
-            
+            MemberViewModel.MembershipStartDate = memership.CreatedAt.ToShortDateString();
+            MemberViewModel.MembershipEndDate = memership.EndDate.ToShortDateString();
+            var plan = _unitOfWork.GetRepository<Plan>().GetById(memership.PlanId);
+            if (plan is null) return null;
+
+            MemberViewModel.PlanName = plan.Name;
+
+            return MemberViewModel;
+
+
         }
 
-       
-        HealthRecordViewModel? IMemberService.GetMemberHealthDetails(int memberId)
+
+        public HealthRecordViewModel? GetMemberHealthDetails(int memberId)
         {
             var memberHealtRecord = _unitOfWork.GetRepository<HealthRecord>().GetById(memberId);
             if (memberHealtRecord is null) return null;
@@ -149,32 +149,28 @@ namespace GymManagementBLL.BusinessServices.implementaion
 
         }
 
-        MemberToUpdateViewModel? IMemberService.GetMemberDetailsToUpdate(int memberId)
+        public MemberToUpdateViewModel? GetMemberDetailsToUpdate(int memberId)
         {
             var member = _unitOfWork.GetRepository<Member>().GetById(memberId);
             if (member is null) return null;
-           return new MemberToUpdateViewModel()
+            return new MemberToUpdateViewModel()
             {
-              Name = member.Name,
-              Email = member.Email,
-              Phone =member.Phone,
-              Photo = member.Photo,
-              BuildingNumber = member.Address.BuildingNumber,
-              City = member.Address.City,
-              Street = member.Address.Street
-           };
-            
+                Name = member.Name,
+                Email = member.Email,
+                Phone = member.Phone,
+                Photo = member.Photo,
+                BuildingNumber = member.Address.BuildingNumber,
+                City = member.Address.City,
+                Street = member.Address.Street
+            };
+
         }
 
-        bool IMemberService.UpdaeMember(int memberId, MemberToUpdateViewModel memberToUpdate)
+        public bool UpdateMember(int memberId, MemberToUpdateViewModel memberToUpdate)
         {
 
             try
             {
-
-               
-
-
                 if (IsEmailExit(memberToUpdate.Email) || IsPhoneExit(memberToUpdate.Phone))
                     return false;
 
@@ -193,7 +189,7 @@ namespace GymManagementBLL.BusinessServices.implementaion
 
 
 
-                 _unitOfWork.GetRepository<Member>().Update(member) ;
+                _unitOfWork.GetRepository<Member>().Update(member);
                 return _unitOfWork.SaveChanges() > 0;
 
             }
@@ -202,10 +198,11 @@ namespace GymManagementBLL.BusinessServices.implementaion
 
                 return false;
             }
+
         }
 
 
-        bool IMemberService.RemoveMember(int memberId)
+        public bool RemoveMember(int memberId)
         {
             try
             {
@@ -232,7 +229,7 @@ namespace GymManagementBLL.BusinessServices.implementaion
                     }
                 }
 
-                 _unitOfWork.GetRepository<Member>().Delete(member) ;
+                _unitOfWork.GetRepository<Member>().Delete(member);
                 return _unitOfWork.SaveChanges() > 0;
             }
             catch (Exception)
