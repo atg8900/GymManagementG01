@@ -1,0 +1,14 @@
+﻿using GymManagementBLL.View_Models.Session_VM;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace GymManagementBLL.BusinessServices.interfaces
+{
+    public interface ISessionService
+    {
+        IEnumerable<SessionViewModel> GetAllSessions();
+    }
+}
