@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GymManagementBLL.View_Models.Session_VM
 {
-    class CreateSessionViewModel
+    public class CreateSessionViewModel
     {
         [Required(ErrorMessage = "Description is required")]
         [StringLength(500, MinimumLength = 10, ErrorMessage = "Description must be between 10 and 500 characters")]

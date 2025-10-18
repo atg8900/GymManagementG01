@@ -22,6 +22,34 @@ namespace GymManagementBLL.BusinessServices.implementaion
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
+
+        public bool CreateSession(CreateSessionViewModel createSession)
+        {
+            try
+            {
+                if (!IsTrainerExit(createSession.TrainerId))
+                    return false;
+
+                if (!IsCategoryExit(createSession.CategoryId))
+                    return false;
+                if (!IsDateTimeValid(createSession.StartDate, createSession.EndDate))
+                    return false;
+
+                if (createSession.Capacity > 25 || createSession.Capacity < 0)
+                    return false;
+
+                var SessionToCreate = _mapper.Map<Session>(createSession);
+
+                _unitOfWork.SessionRepository.Add(SessionToCreate);
+                return _unitOfWork.SaveChanges() > 0;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
+        }
+
         public IEnumerable<SessionViewModel> GetAllSessions()
         {
             var sessionRepo = _unitOfWork.SessionRepository;
@@ -81,5 +109,25 @@ namespace GymManagementBLL.BusinessServices.implementaion
 
             #endregion
         }
+
+
+        #region HelperMethods
+
+        private bool IsTrainerExit(int trainerId)
+        {
+           return _unitOfWork.GetRepository<Trainer>().GetById( trainerId) is not null;
+        }
+        private bool IsCategoryExit(int categoryId)
+        {
+            return _unitOfWork.GetRepository<Category>().GetById(categoryId) is not null;
+        }
+        private bool IsDateTimeValid(DateTime startDate , DateTime endDate)
+        {
+            return startDate < endDate;
+        }
+
+        #endregion
+
+
     }
 }
