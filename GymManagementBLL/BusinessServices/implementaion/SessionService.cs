@@ -111,6 +111,66 @@ namespace GymManagementBLL.BusinessServices.implementaion
         }
 
 
+        public UpdateSessionViewModel? GetSessionToUpdate(int sessionId)
+        {
+            var session = _unitOfWork.SessionRepository.GetById(sessionId);
+            if (IsSessionAvailableForUpdate(session !))
+                return null;
+              
+            return _mapper.Map<UpdateSessionViewModel>(session);
+
+        }
+
+        public bool UpdateSession(int sessionId, UpdateSessionViewModel updateSession)
+        {
+            try
+            {
+                var session = _unitOfWork.SessionRepository.GetById(sessionId);
+
+                if (!IsSessionAvailableForUpdate(session!))
+                    return false;
+
+                if (!IsTrainerExit(updateSession.TrainerId))
+                    return false;
+
+                if (!IsDateTimeValid(updateSession.StartDate, updateSession.EndDate))
+                    return false;
+
+                _mapper.Map(updateSession, session);
+                _unitOfWork.SessionRepository.Update(session!);
+                session!.UpdatedAt = DateTime.Now;
+                return _unitOfWork.SaveChanges() > 0;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
+
+        }
+
+
+        public bool DeleteSession(int sessionId)
+        {
+            try
+            {
+                var session = _unitOfWork.SessionRepository.GetById(sessionId);
+                if (!IsSessionAvailableForRemoving(session!))
+                    return false;
+
+                _unitOfWork.SessionRepository.Delete(session!);
+                return _unitOfWork.SaveChanges() > 0;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
+        }
+
+
+
+
         #region HelperMethods
 
         private bool IsTrainerExit(int trainerId)
@@ -125,6 +185,43 @@ namespace GymManagementBLL.BusinessServices.implementaion
         {
             return startDate < endDate;
         }
+
+
+        private bool IsSessionAvailableForUpdate(Session session)
+        {
+
+            if (session == null) return false;
+
+            if (session.EndDate < DateTime.Now) return false;
+
+            if (session.StartDate <= DateTime.Now) return false;
+
+            var hasActiveBooking = _unitOfWork.SessionRepository.GetCountOfBookedSlots(session.Id) > 0;
+
+            if (hasActiveBooking) return false;
+
+            return true;
+        }
+
+        private bool IsSessionAvailableForRemoving(Session session)
+        {
+
+            if (session == null) return false;
+
+         
+
+            if (session.StartDate <= DateTime.Now && session.EndDate > DateTime.Now) 
+                return false;
+            if (session.StartDate > DateTime.Now) 
+                return false;
+
+            var hasActiveBooking = _unitOfWork.SessionRepository.GetCountOfBookedSlots(session.Id) > 0;
+
+            if (hasActiveBooking) return false;
+
+            return true;
+        }
+
 
         #endregion
 
