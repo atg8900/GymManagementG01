@@ -1,3 +1,4 @@
+using GymManagementBLL.Mapping;
 using GymManagementDAL.Data.Contexts;
 using GymManagementDAL.Data.SeedData;
 using GymManagementDAL.Repositories.Implementaion;
@@ -29,6 +30,7 @@ namespace GymManagementPL
             builder.Services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
             //  builder.Services.AddScoped(typeof(IPlanRepository), typeof(PlanRepository));
             builder.Services.AddScoped(typeof(ISessionRepository), typeof(SessionRepository));
+            builder.Services.AddAutoMapper(X=>X.AddProfile(new MappingProfile()));
 
             #endregion
 
