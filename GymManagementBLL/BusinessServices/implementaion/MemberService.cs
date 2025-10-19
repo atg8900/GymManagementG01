@@ -1,4 +1,5 @@
-﻿using GymManagementBLL.BusinessServices.interfaces;
+﻿using AutoMapper;
+using GymManagementBLL.BusinessServices.interfaces;
 using GymManagementBLL.View_Models;
 using GymManagementDAL.Entities;
 using GymManagementDAL.Repositories.Implementaion;
@@ -16,10 +17,12 @@ namespace GymManagementBLL.BusinessServices.implementaion
     class MemberService : IMemberService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public MemberService(IUnitOfWork unitOfWork)
+        public MemberService(IUnitOfWork unitOfWork ,IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public bool CreateMember(CreateMemberViewModel createMember)
@@ -29,30 +32,33 @@ namespace GymManagementBLL.BusinessServices.implementaion
             if (IsEmailExit(createMember.Email) || IsPhoneExit(createMember.Phone))
                 return false;
 
-            var member = new Member()
-            {
-                Name = createMember.Name,
-                Email = createMember.Email,
-                Phone = createMember.Phone,
-                Gender = createMember.Gender,
-                DateOfBirth = createMember.DateOfBirth,
-                Address = new Address()
-                {
-                    BuildingNumber = createMember.BuildingNumber,
-                    City = createMember.City,
-                    Street = createMember.Street,
-                },
-                HealthRecord = new HealthRecord()
-                {
-                    Height = createMember.HealthRecord.Height,
-                    Weight = createMember.HealthRecord.Weight,
-                    BloodType = createMember.HealthRecord.BloodType,
-                    Note = createMember.HealthRecord.Note,
+            #region Manual
+            //var member = new Member()
+            //{
+            //    Name = createMember.Name,
+            //    Email = createMember.Email,
+            //    Phone = createMember.Phone,
+            //    Gender = createMember.Gender,
+            //    DateOfBirth = createMember.DateOfBirth,
+            //    Address = new Address()
+            //    {
+            //        BuildingNumber = createMember.BuildingNumber,
+            //        City = createMember.City,
+            //        Street = createMember.Street,
+            //    },
+            //    HealthRecord = new HealthRecord()
+            //    {
+            //        Height = createMember.HealthRecord.Height,
+            //        Weight = createMember.HealthRecord.Weight,
+            //        BloodType = createMember.HealthRecord.BloodType,
+            //        Note = createMember.HealthRecord.Note,
 
-                }
+            //    }
 
-            };
+            //}; 
+            #endregion
 
+            var member = _mapper.Map<CreateMemberViewModel, Member>(createMember);
             _unitOfWork.GetRepository<Member>().Add(member);
 
             return _unitOfWork.SaveChanges() > 0;
@@ -86,18 +92,20 @@ namespace GymManagementBLL.BusinessServices.implementaion
 
             #region Manual Mapping Second Way 
 
-            var membersViewModel = members.Select(M => new MemberViewModel
-            {
-                Id = M.Id,
-                Name = M.Name,
-                Phone = M.Phone,
-                Photo = M.Photo,
-                Email = M.Email,
-                Gender = M.Gender.ToString()
+            //var membersViewModel = members.Select(M => new MemberViewModel
+            //{
+            //    Id = M.Id,
+            //    Name = M.Name,
+            //    Phone = M.Phone,
+            //    Photo = M.Photo,
+            //    Email = M.Email,
+            //    Gender = M.Gender.ToString()
 
-            });
-            return membersViewModel;
+            //});
             #endregion
+
+            return  _mapper.Map<IEnumerable<Member> ,IEnumerable<MemberViewModel>>(members);
+          
         }
 
 
@@ -105,17 +113,21 @@ namespace GymManagementBLL.BusinessServices.implementaion
         {
             var member = _unitOfWork.GetRepository<Member>().GetById(memberId);
             if (member is null) return null;
+            #region manual
 
-            var MemberViewModel = new MemberViewModel()
-            {
-                Name = member.Name,
-                Email = member.Email,
-                Phone = member.Phone,
-                Gender = member.Gender.ToString(),
-                DateOfBirth = member.DateOfBirth.ToShortDateString(),
-                Address = $"{member.Address.BuildingNumber}-{member.Address.City}-{member.Address.Street}",
-                Photo = member.Photo,
-            };
+            //var MemberViewModel = new MemberViewModel()
+            //{
+            //    Name = member.Name,
+            //    Email = member.Email,
+            //    Phone = member.Phone,
+            //    Gender = member.Gender.ToString(),
+            //    DateOfBirth = member.DateOfBirth.ToShortDateString(),
+            //    Address = $"{member.Address.BuildingNumber}-{member.Address.City}-{member.Address.Street}",
+            //    Photo = member.Photo,
+            //}; 
+            #endregion
+
+            var MemberViewModel = _mapper.Map<MemberViewModel>(member);
             var memership = _unitOfWork.GetRepository<Membership>()
                             .GetAll(M => M.MemberId == member.Id && M.Status == "Active")
                             .FirstOrDefault();
@@ -138,31 +150,38 @@ namespace GymManagementBLL.BusinessServices.implementaion
         {
             var memberHealtRecord = _unitOfWork.GetRepository<HealthRecord>().GetById(memberId);
             if (memberHealtRecord is null) return null;
-            return new HealthRecordViewModel()
-            {
-                Weight = memberHealtRecord.Weight,
-                Height = memberHealtRecord.Height,
-                BloodType = memberHealtRecord.BloodType,
-                Note = memberHealtRecord.Note
+            #region manual map
+            //return new HealthRecordViewModel()
+            //{
+            //    Weight = memberHealtRecord.Weight,
+            //    Height = memberHealtRecord.Height,
+            //    BloodType = memberHealtRecord.BloodType,
+            //    Note = memberHealtRecord.Note
 
-            };
+            //}; 
+            #endregion
 
+            return _mapper.Map<HealthRecordViewModel>(memberHealtRecord);
         }
 
         public MemberToUpdateViewModel? GetMemberDetailsToUpdate(int memberId)
         {
             var member = _unitOfWork.GetRepository<Member>().GetById(memberId);
             if (member is null) return null;
-            return new MemberToUpdateViewModel()
-            {
-                Name = member.Name,
-                Email = member.Email,
-                Phone = member.Phone,
-                Photo = member.Photo,
-                BuildingNumber = member.Address.BuildingNumber,
-                City = member.Address.City,
-                Street = member.Address.Street
-            };
+            #region manual mapp
+            //return new MemberToUpdateViewModel()
+            //{
+            //    Name = member.Name,
+            //    Email = member.Email,
+            //    Phone = member.Phone,
+            //    Photo = member.Photo,
+            //    BuildingNumber = member.Address.BuildingNumber,
+            //    City = member.Address.City,
+            //    Street = member.Address.Street
+            //}; 
+            #endregion
+
+            return _mapper.Map<MemberToUpdateViewModel>(member);
 
         }
 

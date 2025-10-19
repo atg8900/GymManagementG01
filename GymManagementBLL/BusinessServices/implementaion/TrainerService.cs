@@ -1,4 +1,5 @@
-﻿using GymManagementBLL.BusinessServices.interfaces;
+﻿using AutoMapper;
+using GymManagementBLL.BusinessServices.interfaces;
 using GymManagementBLL.View_Models;
 using GymManagementBLL.View_Models.Trainer_VM;
 using GymManagementDAL.Entities;
@@ -14,10 +15,12 @@ namespace GymManagementBLL.BusinessServices.implementaion
     public class TrainerService : ITrainerService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public TrainerService(IUnitOfWork unitOfWork)
+        public TrainerService(IUnitOfWork unitOfWork ,IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
 
@@ -25,22 +28,25 @@ namespace GymManagementBLL.BusinessServices.implementaion
         {
             if (createTrainer is null || IsEmailExit(createTrainer.Email) || IsPhoneExit(createTrainer.Phone))
                 return false;
-            var trainer = new Trainer()
-            {
-                Name = createTrainer.Name,
-                Email = createTrainer.Email,
-                Phone = createTrainer.Phone,
-                Gender = createTrainer.Gender,
-                DateOfBirth = createTrainer.DateOfBirth,
-                Address = new Address()
-                {
-                    BuildingNumber = createTrainer.BuildingNumber,
-                    City = createTrainer.City,
-                    Street = createTrainer.Street,
-                },
-                Specialties = createTrainer.Specialties,
-            };
+            #region manual mapp
+            //var trainer = new Trainer()
+            //{
+            //    Name = createTrainer.Name,
+            //    Email = createTrainer.Email,
+            //    Phone = createTrainer.Phone,
+            //    Gender = createTrainer.Gender,
+            //    DateOfBirth = createTrainer.DateOfBirth,
+            //    Address = new Address()
+            //    {
+            //        BuildingNumber = createTrainer.BuildingNumber,
+            //        City = createTrainer.City,
+            //        Street = createTrainer.Street,
+            //    },
+            //    Specialties = createTrainer.Specialties,
+            //}; 
+            #endregion
 
+            var trainer = _mapper.Map<CreateTrainerViewModel ,Trainer>(createTrainer);
             try
             {
                 _unitOfWork.GetRepository<Trainer>().Add(trainer);
@@ -80,15 +86,19 @@ namespace GymManagementBLL.BusinessServices.implementaion
             if (trainers is null ||! trainers.Any())
                 return [];
 
-            return trainers.Select(T => new TrainerViewModel
-            {
-                Id = T.Id,
-                Name = T.Name,
-                Email = T.Email,
-                Phone = T.Phone,
-                Specialties = T.Specialties.ToString()
+            #region manual mapp
+            //return trainers.Select(T => new TrainerViewModel
+            //{
+            //    Id = T.Id,
+            //    Name = T.Name,
+            //    Email = T.Email,
+            //    Phone = T.Phone,
+            //    Specialties = T.Specialties.ToString()
 
-            });
+            //}); 
+            #endregion
+
+            return _mapper.Map<IEnumerable<TrainerViewModel>>(trainers);
 
         }
 
@@ -97,33 +107,41 @@ namespace GymManagementBLL.BusinessServices.implementaion
             var trainer = _unitOfWork.GetRepository<Trainer>().GetById(trainerId);
             if (trainer is null) return null;
 
-            return new TrainerViewModel()
-            {
-                Name = trainer.Name,
-                Email = trainer.Email,
-                Phone = trainer.Phone,
-                Gender = trainer.Gender.ToString(),
-                DateOfBirth = trainer.DateOfBirth.ToShortDateString(),
-                Address = $"{trainer.Address.BuildingNumber}-{trainer.Address.City}-{trainer.Address.Street}",
-               Specialties = trainer.Specialties.ToString(),
-            };
+            #region manual
+            //return new TrainerViewModel()
+            //{
+            //    Name = trainer.Name,
+            //    Email = trainer.Email,
+            //    Phone = trainer.Phone,
+            //    Gender = trainer.Gender.ToString(),
+            //    DateOfBirth = trainer.DateOfBirth.ToShortDateString(),
+            //    Address = $"{trainer.Address.BuildingNumber}-{trainer.Address.City}-{trainer.Address.Street}",
+            //   Specialties = trainer.Specialties.ToString(),
+            //}; 
+            #endregion
+
+            return _mapper.Map<TrainerViewModel>(trainer);
         }
 
         public TrainerToUpdateViewModel? GetTrainerToUpdate(int trainerId)
         {
             var trainer = _unitOfWork.GetRepository<Trainer>().GetById(trainerId);
             if (trainer is null) return null;
-            return new TrainerToUpdateViewModel()
-            {
-                Name = trainer.Name,
-                Email = trainer.Email,
-                Phone = trainer.Phone,
-                Specialties = trainer.Specialties,
-                BuildingNumber = trainer.Address.BuildingNumber,
-                City = trainer.Address.City,
-                Street = trainer.Address.Street,
-                
-            };
+            #region manual
+            //return new TrainerToUpdateViewModel()
+            //{
+            //    Name = trainer.Name,
+            //    Email = trainer.Email,
+            //    Phone = trainer.Phone,
+            //    Specialties = trainer.Specialties,
+            //    BuildingNumber = trainer.Address.BuildingNumber,
+            //    City = trainer.Address.City,
+            //    Street = trainer.Address.Street,
+
+            //}; 
+            #endregion
+
+            return _mapper.Map<TrainerToUpdateViewModel>(trainer);
         }
 
         public bool UpdateTrainer(int id, TrainerToUpdateViewModel trainerToUpdate)
