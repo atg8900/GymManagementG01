@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GymManagementBLL.View_Models
 {
-    class MemberViewModel
+    public class MemberViewModel
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
