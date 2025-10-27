@@ -1,31 +1,51 @@
-using System.Diagnostics;
+﻿using GymManagementDAL.Entities;
 using Microsoft.AspNetCore.Mvc;
-using GymManagementPL.Models;
 
-namespace GymManagementPL.Controllers;
-
-public class HomeController : Controller
+namespace GymManagementPL.Controllers
 {
-    private readonly ILogger<HomeController> _logger;
-
-    public HomeController(ILogger<HomeController> logger)
+    //BaseURL/Home/Index
+    public class HomeController : Controller
     {
-        _logger = logger;
-    }
+        public ActionResult Index()
+        {
+            return View();
+        }
 
-    public IActionResult Index()
-    {
-        return View();
-    }
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
+        #region Actions
+        //public IActionResult Index()
+        //{
+        //    return View();
+        //}
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        //BaseURL/Home/Trainers
+        public JsonResult Trainers()
+        {
+            var trainers = new List<Trainer>()
+            {
+                new Trainer(){Name="abdullah" , Phone="0106325600"},
+                new Trainer(){Name="aya" , Phone="0106325656"},
+            };
+            return Json(trainers);
+        }
+
+        public RedirectResult Redirect()
+        {
+            return Redirect("https://www.linkedin.com/");
+        }
+
+        public ContentResult GetContent()
+        {
+            return Content("<h1>Hello From Gold's Gym</h1>", "text/html");
+        }
+
+        public FileResult DownloadFile()
+        {
+            var pathFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "css", "site.css");
+            var fileBytes = System.IO.File.ReadAllBytes(pathFile);
+            return File(fileBytes, "text/css", "AtgStyle.css");
+        } 
+        #endregion
+
     }
 }
