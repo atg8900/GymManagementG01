@@ -14,12 +14,12 @@ using System.Threading.Tasks;
 
 namespace GymManagementBLL.BusinessServices.implementaion
 {
-    class MemberService : IMemberService
+    public class MemberService : IMemberService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public MemberService(IUnitOfWork unitOfWork ,IMapper mapper)
+        public MemberService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -104,8 +104,8 @@ namespace GymManagementBLL.BusinessServices.implementaion
             //});
             #endregion
 
-            return  _mapper.Map<IEnumerable<Member> ,IEnumerable<MemberViewModel>>(members);
-          
+            return _mapper.Map<IEnumerable<Member>, IEnumerable<MemberViewModel>>(members);
+
         }
 
 
