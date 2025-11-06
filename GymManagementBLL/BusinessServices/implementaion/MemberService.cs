@@ -14,12 +14,12 @@ using System.Threading.Tasks;
 
 namespace GymManagementBLL.BusinessServices.implementaion
 {
-    public class MemberService : IMemberService
+    class MemberService : IMemberService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public MemberService(IUnitOfWork unitOfWork, IMapper mapper)
+        public MemberService(IUnitOfWork unitOfWork ,IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -104,8 +104,8 @@ namespace GymManagementBLL.BusinessServices.implementaion
             //});
             #endregion
 
-            return _mapper.Map<IEnumerable<Member>, IEnumerable<MemberViewModel>>(members);
-
+            return  _mapper.Map<IEnumerable<Member> ,IEnumerable<MemberViewModel>>(members);
+          
         }
 
 
@@ -128,18 +128,17 @@ namespace GymManagementBLL.BusinessServices.implementaion
             #endregion
 
             var MemberViewModel = _mapper.Map<MemberViewModel>(member);
-            var ActiveMembership = _unitOfWork.GetRepository<Membership>()
-                                              .GetAll(m => m.MemberId == memberId && m.Status == "Active").FirstOrDefault();
+            var memership = _unitOfWork.GetRepository<Membership>()
+                            .GetAll(M => M.MemberId == member.Id && M.Status == "Active")
+                            .FirstOrDefault();
+            if (memership is null) return null;
 
-            if (ActiveMembership is not null)
-            {
-                var activePlan = _unitOfWork.GetRepository<Plan>().GetById(ActiveMembership.PlanId);
-                if (activePlan is null) return null;
-                MemberViewModel.PlanName = activePlan?.Name;
-                MemberViewModel.MembershipEndDate = ActiveMembership.EndDate.ToShortDateString();
-                MemberViewModel.MembershipStartDate = ActiveMembership.CreatedAt.ToShortDateString();
-            }
+            MemberViewModel.MembershipStartDate = memership.CreatedAt.ToShortDateString();
+            MemberViewModel.MembershipEndDate = memership.EndDate.ToShortDateString();
+            var plan = _unitOfWork.GetRepository<Plan>().GetById(memership.PlanId);
+            if (plan is null) return null;
 
+            MemberViewModel.PlanName = plan.Name;
 
             return MemberViewModel;
 
@@ -191,8 +190,8 @@ namespace GymManagementBLL.BusinessServices.implementaion
 
             try
             {
-                var emailExist = _unitOfWork.GetRepository<Member>().GetAll(x => x.Email == memberToUpdate.Email && x.Id != memberId);
-                var phoneExist = _unitOfWork.GetRepository<Member>().GetAll(x => x.Phone == memberToUpdate.Phone && x.Id != memberId);
+                if (IsEmailExit(memberToUpdate.Email) || IsPhoneExit(memberToUpdate.Phone))
+                    return false;
 
                 var member = _unitOfWork.GetRepository<Member>().GetById(memberId);
                 if (member is null) return false;

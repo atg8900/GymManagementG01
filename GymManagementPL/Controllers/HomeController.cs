@@ -1,20 +1,51 @@
-﻿using GymManagementBLL.Services.Interfaces;
+﻿using GymManagementDAL.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymManagementPL.Controllers
 {
+    //BaseURL/Home/Index
     public class HomeController : Controller
     {
-        private readonly IAnalyticsService _analyticsService;
+        public ActionResult Index()
+        {
+            return View();
+        }
 
-        public HomeController(IAnalyticsService analyticsService)
+
+        #region Actions
+        //public IActionResult Index()
+        //{
+        //    return View();
+        //}
+
+        //BaseURL/Home/Trainers
+        public JsonResult Trainers()
         {
-            _analyticsService = analyticsService;
+            var trainers = new List<Trainer>()
+            {
+                new Trainer(){Name="abdullah" , Phone="0106325600"},
+                new Trainer(){Name="aya" , Phone="0106325656"},
+            };
+            return Json(trainers);
         }
-        public IActionResult Index()
+
+        public RedirectResult Redirect()
         {
-            var data = _analyticsService.GetAnalyticsData();
-            return View(data);
+            return Redirect("https://www.linkedin.com/");
         }
+
+        public ContentResult GetContent()
+        {
+            return Content("<h1>Hello From Gold's Gym</h1>", "text/html");
+        }
+
+        public FileResult DownloadFile()
+        {
+            var pathFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "css", "site.css");
+            var fileBytes = System.IO.File.ReadAllBytes(pathFile);
+            return File(fileBytes, "text/css", "AtgStyle.css");
+        } 
+        #endregion
+
     }
 }
